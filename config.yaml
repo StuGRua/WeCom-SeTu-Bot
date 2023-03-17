@@ -1,0 +1,10 @@
+http:
+  port: 9999
+log:
+  #console:终端，file:文件，all:所有
+  output: "console"
+se_tu:
+  pic_size: ["original"]
+  proxy: "i.pixiv.re"
+  qw_auth: [""]
+  cron_str: "0/10 * * * * *" #每10秒执行一次

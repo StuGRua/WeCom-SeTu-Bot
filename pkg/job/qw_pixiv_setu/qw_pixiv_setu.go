@@ -36,9 +36,9 @@ func NewCronTab(config config.Config, rp repo_pixiv.RepoPixiv, rs repo_setu.Repo
 	}
 	ctx := context.Background()
 	// 每天0点执行
-	addFunc, err := c.cron.AddFunc(c.config.SeTu.CronStr, c.SetuProcess)
+	addFunc, err := c.cron.AddFunc(c.config.SeTu.CronStr, c.SeTuProcess)
 	if err != nil {
-		logrus.WithContext(ctx).Errorf("failed init cron SetuProcess: %v", err)
+		logrus.WithContext(ctx).Errorf("failed init cron SeTuProcess: %v", err)
 		return nil
 	}
 	logrus.WithContext(ctx).Println("success init cron: ", addFunc)
@@ -60,12 +60,13 @@ func (p PackBotMsg) Json() string {
 	return string(marshal)
 }
 
-func (m *CronTab) SetuProcess() {
+// SeTuProcess 定时发送涩图
+func (m *CronTab) SeTuProcess() {
 	var err error
 	ctx := context.Background()
 	logrus.WithContext(ctx).Println("SeTuProcess start")
 	// 获取图片描述信息
-	queryResSlice, err := m.getSeTuDescSlice(ctx)
+	queryResSlice, err := m.getSeTuDescSlice(ctx, m.config.SeTu)
 	if err != nil {
 		return
 	}
@@ -123,13 +124,13 @@ func (m *CronTab) downloadSeTu(ctx context.Context, queryResSlice entity.QueryRe
 	return archSlice, nil
 }
 
-func (m *CronTab) getSeTuDescSlice(ctx context.Context) (entity.QueryResult, error) {
+func (m *CronTab) getSeTuDescSlice(ctx context.Context, seTuConfig config.SeTuConfig) (entity.QueryResult, error) {
 	queryResSlice, err := m.repoSeTu.GetArchiveInfoSlice(ctx, &entity.Query{
-		R18:   m.config.SeTu.R18,
+		R18:   seTuConfig.R18,
 		Num:   1,
-		Tag:   m.config.SeTu.Tags,
-		Size:  m.config.SeTu.PicSize,
-		Proxy: m.config.SeTu.Proxy,
+		Tag:   seTuConfig.Tags,
+		Size:  seTuConfig.PicSize,
+		Proxy: seTuConfig.Proxy,
 	})
 	if err != nil {
 		return entity.QueryResult{}, err

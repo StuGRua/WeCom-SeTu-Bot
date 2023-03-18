@@ -12,15 +12,17 @@ type Config struct {
 	LogConfig struct {
 		Output string `yaml:"output"`
 	} `yaml:"log"`
-	SeTu struct {
-		SetuApiUrl string   `yaml:"setu_api_url"`
-		QWAuth     []string `yaml:"qw_auth"`
-		CronStr    string   `yaml:"cron_str"`
-		R18        int64    `yaml:"r_18"`
-		Tags       []string `yaml:"tags"`
-		PicSize    []string `yaml:"pic_size"`
-		Proxy      string   `yaml:"proxy"`
-	} `yaml:"se_tu"`
+	SeTu SeTuConfig `yaml:"se_tu"`
+}
+
+type SeTuConfig struct {
+	SetuApiUrl string   `yaml:"setu_api_url"`
+	QWAuth     []string `yaml:"qw_auth"`
+	CronStr    string   `yaml:"cron_str"`
+	R18        int64    `yaml:"r_18"`
+	Tags       []string `yaml:"tags"`
+	PicSize    []string `yaml:"pic_size"`
+	Proxy      string   `yaml:"proxy"`
 }
 
 func NewConfig() *Config {

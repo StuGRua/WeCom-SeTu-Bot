@@ -62,26 +62,32 @@ func (p PackBotMsg) Json() string {
 
 // SeTuProcess 定时发送涩图
 func (m *CronTab) SeTuProcess() {
-	var err error
-	ctx := context.Background()
-	logrus.WithContext(ctx).Println("SeTuProcess start")
-	// 获取图片描述信息
-	queryResSlice, err := m.getSeTuDescSlice(ctx, m.config.SeTu)
-	if err != nil {
-		return
+	// 重试直到成功
+	for {
+		var err error
+		ctx := context.Background()
+		logrus.WithContext(ctx).Println("SeTuProcess start")
+		// 获取图片描述信息
+		queryResSlice, err := m.getSeTuDescSlice(ctx, m.config.SeTu)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("getSeTuDescSlice err: %v", err)
+			continue
+		}
+		// 下载图片
+		archSlice, err := m.downloadSeTu(ctx, queryResSlice)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("downloadSeTu err: %v", err)
+			continue
+		}
+		// 发送机器人消息
+		err = m.sendBotMessages(ctx, archSlice)
+		if err != nil {
+			logrus.WithContext(ctx).Errorf("sendBotMessages err: %v", err)
+			continue
+		}
+		logrus.WithContext(ctx).Println("SeTuProcess end")
+		break
 	}
-	// 下载图片
-	archSlice, err := m.downloadSeTu(ctx, queryResSlice)
-	if err != nil {
-		return
-	}
-	// 发送机器人消息
-	err = m.sendBotMessages(ctx, archSlice)
-	if err != nil {
-		return
-	}
-	logrus.WithContext(ctx).Println("SeTuProcess end")
-	return
 }
 
 func (m *CronTab) sendBotMessages(ctx context.Context, archSlice []*entity.ArchiveWithData) error {

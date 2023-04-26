@@ -10,6 +10,7 @@ import (
 	"server/pkg/config"
 	"server/pkg/domain/entity"
 	"server/pkg/domain/repo"
+	"time"
 )
 
 type RepoSetu interface {
@@ -24,7 +25,7 @@ type repoSetu struct {
 func NewRepoSetu(config *config.Config) RepoSetu {
 	r := repoSetu{
 		config:     config,
-		httpClient: &http.Client{},
+		httpClient: &http.Client{Timeout: time.Second * 10},
 	}
 	return &r
 }

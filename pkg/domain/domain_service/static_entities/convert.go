@@ -1,7 +1,6 @@
 package static_entities
 
 import (
-	"context"
 	"crypto/md5"
 	"encoding/base64"
 	"encoding/hex"
@@ -47,11 +46,18 @@ func ConvertArchiveWithDataToPictureMsg(data *entity.ArchiveWithData) *entity.Bo
 	picData := data.Data
 	//picDataSize := len(picData)
 	var err error
-	picComp, err := utils.CompressPictureUntilSize(context.Background(), picData, 2*1024*1024)
+	picDataJpg, err := utils.TransferPicDataToJpg(picData)
 	if err != nil {
-		log.Println("CompressPictureUntilSize failed: ", err)
+		log.Println("[ConvertArchiveWithDataToPictureMsg] TransferPicDataToJpg failed: ", err)
 		return nil
 	}
+	picComp, err := utils.CompressPictureUntilSize(picDataJpg, 2*1024*1024)
+	if err != nil {
+		log.Println("[ConvertArchiveWithDataToPictureMsg] CompressPictureUntilSize failed: ", err)
+		return nil
+	}
+	picCompSize := len(picComp)
+	log.Println("[ConvertArchiveWithDataToPictureMsg] after CompressPictureUntilSize process, pic raw size is: ", picCompSize)
 	picBase64 := base64.StdEncoding.EncodeToString(picComp)
 	md5Hash := md5.New()
 	md5Hash.Write(picComp)

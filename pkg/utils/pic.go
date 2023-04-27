@@ -2,12 +2,11 @@ package utils
 
 import (
 	"bytes"
-	"context"
 	"github.com/nfnt/resize"
 	"github.com/sirupsen/logrus"
 	"image"
 	"image/jpeg"
-	"image/png"
+	_ "image/png"
 )
 
 // picCompress Modify size to compress pictures.
@@ -42,7 +41,7 @@ func CompressPicture(picData []byte) ([]byte, error) {
 	outputImg := resize.Resize(uint(inputImg.Bounds().Dx()/2), 0, inputImg, resize.Lanczos3)
 	// Encode the output image as PNG and write it to a buffer.
 	newBuffer := new(bytes.Buffer)
-	err = png.Encode(newBuffer, outputImg)
+	err = jpeg.Encode(newBuffer, outputImg, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -51,20 +50,24 @@ func CompressPicture(picData []byte) ([]byte, error) {
 }
 
 // CompressPictureUntilSize 2*1024*1024
-func CompressPictureUntilSize(ctx context.Context, picData []byte, maxSize int) (res []byte, err error) {
+func CompressPictureUntilSize(picData []byte, maxSize int) (res []byte, err error) {
 	if len(picData) <= maxSize {
 		return picData, nil
 	}
+	copy(res, picData)
 	picDataSize := len(picData)
 	for round := 0; round < 5; round++ {
 		if picDataSize > maxSize {
-			res, err = CompressPicture(picData)
+			var newPicData []byte
+			newPicData, err = CompressPicture(picData)
 			if err != nil {
-				logrus.WithContext(ctx).Errorln(err)
+				logrus.Errorln(err)
 				break
 			}
+			copy(res, newPicData)
 			picDataSize = len(res)
 		}
+		logrus.Infof("[CompressPictureUntilSize] round %d, picDataSize %d", round, picDataSize)
 	}
 	return
 }
@@ -74,15 +77,17 @@ func TransferPicDataToJpg(picData []byte) ([]byte, error) {
 	oldBuf := bytes.NewBuffer(picData)
 	pic, res, err := image.Decode(oldBuf)
 	if err != nil {
+		logrus.Errorf("[TransferPicDataToJpg] image.Decode err %v", err)
 		return nil, err
 	}
 	if res == "jpeg" {
 		return picData, nil
 	}
-	logrus.Infof("picData is %s, will convert to jpeg", res)
+	logrus.Infof("[TransferPicDataToJpg] picData is %s, will convert to jpeg", res)
 	var newBuf bytes.Buffer
 	err = jpeg.Encode(&newBuf, pic, nil)
 	if err != nil {
+		logrus.Errorf("[TransferPicDataToJpg] jpeg.Encode err %v", err)
 		return nil, err
 	}
 	return newBuf.Bytes(), nil

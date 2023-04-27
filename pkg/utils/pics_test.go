@@ -86,3 +86,45 @@ func Test_CompressPicture(t *testing.T) {
 		})
 	}
 }
+
+// test for TransferPicDataToJpg
+func TestTransferPicDataToJpg(t *testing.T) {
+	// Setup test data
+	imgData, err := os.ReadFile("test-image.png")
+	if err != nil {
+		t.Fatalf("failed to read test image file: %v", err)
+	}
+	jpgImgData, err := os.ReadFile("test-image-tran.jpg")
+	if err != nil {
+		t.Fatalf("failed to read test image file: %v", err)
+	}
+	testCases := []struct {
+		name    string
+		width   int64
+		imgData []byte
+	}{
+		{"tran", 500, imgData},
+		{"tran", 0, jpgImgData},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Invoke the function being tested.
+			compressedData, err := TransferPicDataToJpg(imgData)
+
+			// Check the result.
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if len(compressedData) == 0 {
+				t.Fatalf("compressed data is empty")
+			}
+			create, err := os.Create("test-image-tran.jpg")
+			if err != nil {
+				return
+			}
+			defer create.Close()
+			_, err = create.Write(compressedData)
+		})
+
+	}
+}

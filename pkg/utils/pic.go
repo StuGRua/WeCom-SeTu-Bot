@@ -6,6 +6,7 @@ import (
 	"github.com/nfnt/resize"
 	"github.com/sirupsen/logrus"
 	"image"
+	"image/jpeg"
 	"image/png"
 )
 
@@ -66,4 +67,23 @@ func CompressPictureUntilSize(ctx context.Context, picData []byte, maxSize int) 
 		}
 	}
 	return
+}
+
+// TransferPicDataToJpg transfer picData from png to jpg, if it is jpg then no action
+func TransferPicDataToJpg(picData []byte) ([]byte, error) {
+	oldBuf := bytes.NewBuffer(picData)
+	pic, res, err := image.Decode(oldBuf)
+	if err != nil {
+		return nil, err
+	}
+	if res == "jpeg" {
+		return picData, nil
+	}
+	logrus.Infof("picData is %s, will convert to jpeg", res)
+	var newBuf bytes.Buffer
+	err = jpeg.Encode(&newBuf, pic, nil)
+	if err != nil {
+		return nil, err
+	}
+	return newBuf.Bytes(), nil
 }

@@ -7,4 +7,4 @@ se_tu:
   pic_size: ["original"]
   proxy: "i.pixiv.re"
   qw_auth: [""]
-  cron_str: "0/10 * * * * *" #每10秒执行一次
+  cron_str: "0 0/30 * * * *" #每30min执行一次

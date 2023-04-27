@@ -51,10 +51,10 @@ func CompressPicture(picData []byte) ([]byte, error) {
 
 // CompressPictureUntilSize 2*1024*1024
 func CompressPictureUntilSize(picData []byte, maxSize int) (res []byte, err error) {
+	logrus.Infof("[CompressPictureUntilSize] picData size %d", len(picData))
 	if len(picData) <= maxSize {
 		return picData, nil
 	}
-	copy(res, picData)
 	picDataSize := len(picData)
 	for round := 0; round < 5; round++ {
 		if picDataSize > maxSize {
@@ -64,10 +64,10 @@ func CompressPictureUntilSize(picData []byte, maxSize int) (res []byte, err erro
 				logrus.Errorln(err)
 				break
 			}
-			copy(res, newPicData)
+			res = bytes.Clone(newPicData)
 			picDataSize = len(res)
+			logrus.Infof("[CompressPictureUntilSize] raw pic size %d, round %d, compressed pic size %d", len(picData), round, picDataSize)
 		}
-		logrus.Infof("[CompressPictureUntilSize] round %d, picDataSize %d", round, picDataSize)
 	}
 	return
 }

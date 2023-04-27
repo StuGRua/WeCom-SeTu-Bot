@@ -2,7 +2,7 @@ package utils
 
 import (
 	"bytes"
-	"image/png"
+	"image/jpeg"
 	"os"
 	"testing"
 )
@@ -49,12 +49,13 @@ func Test_CompressPicture(t *testing.T) {
 		picPath  string
 		width    uint
 		expected bool // true if no error, false if error is expected
+		maxSize  int64
 	}
 
 	testCases := []testCase{
-		{"valid", "test-image.png", 100, true},
-		{"invalid_path", "test-image.png", 100, false},
-		{"invalid_pic", "test-image.png", 100, false},
+		{"valid", "test-image.png", 100, true, 1024 * 1024},
+		{"invalid_path", "test-image.png", 100, false, 1024 * 1024},
+		{"invalid_pic", "test-image.png", 100, false, 1024 * 1024},
 	}
 
 	for _, tc := range testCases {
@@ -68,7 +69,7 @@ func Test_CompressPicture(t *testing.T) {
 				return
 			}
 
-			compressedPic, err := CompressPicture(picData)
+			compressedPic, err := CompressPictureUntilSize(picData, 1024*1024)
 			if err != nil {
 				if tc.expected {
 					t.Fatalf("unexpected error: %v", err)
@@ -79,9 +80,12 @@ func Test_CompressPicture(t *testing.T) {
 
 			// ensure compressed picture is valid
 			buffer := bytes.NewBuffer(compressedPic)
-			_, err = png.Decode(buffer)
+			_, err = jpeg.Decode(buffer)
 			if err != nil {
 				t.Errorf("Compressed picture is invalid: %v", err)
+			}
+			if len(compressedPic) > int(tc.maxSize) {
+				t.Errorf("Compressed picture is too large: %v", len(compressedPic))
 			}
 		})
 	}

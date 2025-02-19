@@ -13,7 +13,7 @@ import (
 )
 
 type Biz interface {
-	SeTuProcess() (err error)
+	SeTuProcess(ctx context.Context) (err error)
 }
 
 type biz struct {
@@ -33,11 +33,10 @@ func New(cfg *config.Config, repoQW repo_interface.QWBotRepo, repoPixiv repo_int
 }
 
 // SeTuProcess 定时发送涩图
-func (b *biz) SeTuProcess() (err error) {
+func (b *biz) SeTuProcess(ctx context.Context) (err error) {
 	// 重试3次
 	for i := 0; i < 3; i++ {
 		var err error
-		ctx := context.Background()
 		logrus.WithContext(ctx).Println("SeTuProcess start")
 		// 获取图片描述信息
 		queryResSlice, err := b.getSeTuDescSlice(ctx, b.config.SeTu)

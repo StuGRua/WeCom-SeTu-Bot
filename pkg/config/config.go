@@ -3,9 +3,9 @@ package config
 import (
 	"encoding/json"
 	"flag"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"os"
+	"strings"
 )
 
 type Config struct {
@@ -27,6 +27,14 @@ type SeTuConfig struct {
 	PicSize     []string `yaml:"pic_size"`
 	Proxy       string   `yaml:"proxy"`
 	DirectProxy string   `yaml:"direct_proxy"`
+}
+
+func (c *Config) String() string {
+	data, err := json.Marshal(c)
+	if err != nil {
+		return ""
+	}
+	return string(data)
 }
 
 func NewConfigFromFile() *Config {
@@ -58,30 +66,36 @@ func NewConfigFromFlags() *Config {
 	// 解析flag
 	qwAuth := flag.String("qw_auth", "", "企微api地址")
 	r18 := flag.Int64("r18", 0, "是否启用r18")
-	tags := flag.String("tags", "[]", "想要的tag")
-	picSize := flag.String("pic_size", `["original"]`, "图片尺寸")
+	tags := flag.String("tags", "", "想要的tag")
+	picSize := flag.String("pic_size", `original`, "图片尺寸")
 	proxy := flag.String("proxy", "i.pixiv.re", "proxy")
 	directProxy := flag.String("direct_proxy", "https://pixiv.re", "direct proxy")
 	flag.Parse()
 	if *qwAuth == "" {
 		panic("qw_auth is required")
 	}
-	cfg.QWAuth = append(cfg.QWAuth, *qwAuth)
+	// 使用逗号分隔
+	cfg.QWAuth = strings.Split(*qwAuth, ",")
+	if len(cfg.QWAuth) == 0 {
+		panic("qw_auth is required")
+	}
 	if *r18 != 0 {
 		cfg.R18 = *r18
 	}
-	if *tags != "" {
-		err := json.Unmarshal([]byte(*tags), &cfg.Tags)
-		if err != nil {
-			logrus.Errorf("tags format err: %v", err)
-			panic("tags format err")
+	if *tags != "" && *tags != "default" {
+		// 使用逗号分隔
+		tagArr := strings.Split(*tags, ",")
+		cfg.Tags = tagArr
+		if len(tagArr) == 0 {
+			cfg.Tags = nil
 		}
 	}
 	if *picSize != "" {
-		err := json.Unmarshal([]byte(*picSize), &cfg.PicSize)
-		if err != nil {
-			logrus.Errorf("pic_size format err: %v", err)
-			panic("pic_size format err")
+		// 使用逗号分隔
+		sizeArr := strings.Split(*picSize, ",")
+		cfg.PicSize = sizeArr
+		if len(sizeArr) == 0 {
+			cfg.PicSize = []string{"original"}
 		}
 	}
 	if *proxy != "" {

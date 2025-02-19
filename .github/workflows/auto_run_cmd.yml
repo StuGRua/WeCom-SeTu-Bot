@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout code  # 检出代码
-        uses: actions/checkout@v3
+        uses: actions/checkout@master
 
       - name: Set up Go  # 设置 Go 环境
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@master
         with:
           go-version: '1.20'  # 根据你的 Go 版本需求调整
 
@@ -36,7 +36,7 @@ jobs:
           LOG_LEVEL: debug
 
       - name: Upload logs  # 上传日志文件（如果有日志文件生成）
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@master
         with:
           name: run-logs
           path: logs/  # 假设日志文件存储在 logs 文件夹中

@@ -1,4 +1,4 @@
-name: Run Go Program Periodically
+name: 自动定时执行
 
 on:
   # 定时任务：每30分钟执行一次，从0分开始

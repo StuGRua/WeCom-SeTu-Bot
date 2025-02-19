@@ -26,8 +26,8 @@ jobs:
       - name: Install dependencies  # 安装 Go 依赖
         run: go mod download
 
-      - name: Build Go Program  # 编译 Go 程序
-        run: go build /cmd -o main
+      - name: Build Go Program  # 编译 Go 程序，输出到当前运行目录下的main文件
+        run: go build -o main ./cmd/cmd.go
 
       - name: Run Go Program  # 运行 Go 程序
         run: ./main --qw_auth="${{ secrets.QW_AUTH }}" --r18=${{ secrets.R18 }} --tags=${{ secrets.TAGS }} --pic_size=${{ secrets.PIC_SIZE }} --proxy=${{ secrets.PROXY }} --direct_proxy=${{ secrets.DIRECT_PROXY }}

@@ -1,4 +1,4 @@
-package qw_pixiv_setu
+package qw_pixiv_setu_job
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	"server/pkg/config"
-	"server/pkg/domain/entity"
 	"server/pkg/infrastructure/repo_setu"
+	"server/pkg/model/entity"
 	"testing"
 )
 

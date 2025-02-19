@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"server/pkg/domain/entity"
+	"server/pkg/model/entity"
 	"server/pkg/utils"
 )
 

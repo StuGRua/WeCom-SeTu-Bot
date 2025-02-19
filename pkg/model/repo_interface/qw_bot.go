@@ -1,8 +1,8 @@
-package repo
+package repo_interface
 
 import (
 	"context"
-	"server/pkg/domain/entity"
+	"server/pkg/model/entity"
 )
 
 type QWBotRepo interface {

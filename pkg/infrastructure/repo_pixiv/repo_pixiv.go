@@ -3,23 +3,20 @@ package repo_pixiv
 import (
 	"bytes"
 	"context"
+	"errors"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"server/pkg/config"
-	"server/pkg/domain/repo"
+	"server/pkg/model/repo_interface"
 )
-
-type RepoPixiv interface {
-	repo.PicRepo
-}
 
 type repoPixiv struct {
 	config     *config.Config
 	httpClient *http.Client
 }
 
-func NewRepoPixiv(config *config.Config) RepoPixiv {
+func NewRepoPixiv(config *config.Config) repo_interface.PicRepo {
 	r := repoPixiv{
 		config:     config,
 		httpClient: &http.Client{},
@@ -48,6 +45,10 @@ func (r repoPixiv) FetchPixivPictureToMem(ctx context.Context, url string) ([]by
 		return nil, err
 	}
 	logrus.WithContext(ctx).Println(url, dlResp.Status, " || ", len(picData))
+	if dlResp.StatusCode != 200 {
+		err = errors.New(dlResp.Status)
+		return nil, err
+	}
 	_ = dlResp.Body.Close()
 	return picData, nil
 }

@@ -8,22 +8,18 @@ import (
 	"io"
 	"net/http"
 	"server/pkg/config"
-	"server/pkg/domain/entity"
-	"server/pkg/domain/repo"
+	"server/pkg/model/entity"
+	"server/pkg/model/repo_interface"
 	"time"
 )
 
-type RepoSetu interface {
-	repo.SetuRepo
-}
-
-type repoSetu struct {
+type repoSeTu struct {
 	config     *config.Config
 	httpClient *http.Client
 }
 
-func NewRepoSetu(config *config.Config) RepoSetu {
-	r := repoSetu{
+func NewRepoSetu(config *config.Config) repo_interface.SeTuRepo {
+	r := repoSeTu{
 		config:     config,
 		httpClient: &http.Client{Timeout: time.Second * 10},
 	}
@@ -31,7 +27,7 @@ func NewRepoSetu(config *config.Config) RepoSetu {
 }
 
 // GetArchiveInfoSlice 从api获取setu信息
-func (r *repoSetu) GetArchiveInfoSlice(ctx context.Context, query *entity.Query) (result entity.QueryResult, err error) {
+func (r *repoSeTu) GetArchiveInfoSlice(ctx context.Context, query *entity.Query) (result entity.QueryResult, err error) {
 	jsonStr, err := json.Marshal(query)
 	if err != nil {
 		logrus.WithContext(ctx).Println("[GetArchiveInfoSlice] Marshal json failed.", err)

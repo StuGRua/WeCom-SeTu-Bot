@@ -7,7 +7,7 @@ package repo_setu
 import (
 	context "context"
 	reflect "reflect"
-	entity "server/pkg/domain/entity"
+	entity "server/pkg/model/entity"
 
 	gomock "github.com/golang/mock/gomock"
 )

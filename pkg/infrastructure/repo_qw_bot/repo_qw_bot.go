@@ -8,20 +8,16 @@ import (
 	"io"
 	"net/http"
 	"server/pkg/config"
-	"server/pkg/domain/entity"
-	"server/pkg/domain/repo"
+	"server/pkg/model/entity"
+	"server/pkg/model/repo_interface"
 )
-
-type RepoQWBot interface {
-	repo.QWBotRepo
-}
 
 type qwBotRepo struct {
 	config     *config.Config
 	httpClient *http.Client
 }
 
-func NewRepoQWBot(config *config.Config) RepoQWBot {
+func NewRepoQWBot(config *config.Config) repo_interface.QWBotRepo {
 	r := qwBotRepo{
 		config:     config,
 		httpClient: &http.Client{},

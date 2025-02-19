@@ -2,7 +2,7 @@ package static_entities
 
 import (
 	"github.com/stretchr/testify/require"
-	"server/pkg/domain/entity"
+	"server/pkg/model/entity"
 	"testing"
 )
 

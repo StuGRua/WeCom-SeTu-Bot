@@ -1,10 +1,10 @@
-package repo
+package repo_interface
 
 import (
 	"context"
-	"server/pkg/domain/entity"
+	"server/pkg/model/entity"
 )
 
-type SetuRepo interface {
+type SeTuRepo interface {
 	GetArchiveInfoSlice(ctx context.Context, query *entity.Query) (result entity.QueryResult, err error)
 }

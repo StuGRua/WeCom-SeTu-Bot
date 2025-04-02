@@ -98,6 +98,20 @@ func (b *biz) downloadSeTu(ctx context.Context, queryResSlice entity.QueryResult
 		//	return nil, err
 		//}
 		directUrl := config.GlobalConfig.SeTu.DirectProxy + "/" + strconv.FormatInt(archive.Pid, 10) + "." + archive.Ext
+		for _, s := range b.config.SeTu.PicSize {
+			switch s {
+			case "original":
+				directUrl = archive.Urls.Original
+			case "regular":
+				directUrl = archive.Urls.Regular
+			case "small":
+				directUrl = archive.Urls.Small
+			case "thumb":
+				directUrl = archive.Urls.Thumb
+			case "mini":
+				directUrl = archive.Urls.Mini
+			}
+		}
 		data, err = b.repoPixiv.FetchPixivPictureToMem(ctx, directUrl)
 		if err != nil {
 			logrus.WithContext(ctx).Errorln("[FetchPixivPictureToMem] via direct proxy failed: ", directUrl, " | ", err)

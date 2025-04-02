@@ -27,7 +27,7 @@ func NewCronTab(config config.Config, seTuBiz se_tu.Biz) *CronTab {
 	ctx := context.Background()
 	// 每天0点执行
 	addFunc, err := c.cron.AddFunc(c.config.SeTuCronStr, func() {
-		execErr := c.seTuBiz.SeTuProcess()
+		execErr := c.seTuBiz.SeTuProcess(ctx)
 		if execErr != nil {
 			logrus.WithContext(ctx).Error(execErr)
 		}

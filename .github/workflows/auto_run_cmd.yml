@@ -1,43 +1,63 @@
 name: 自动定时执行
 
 on:
-  # 定时任务：每30分钟执行一次，从0分开始
+  # 定时任务：每30分钟执行一次
   schedule:
     - cron: "0,30 * * * *"
 
-  # 也可以保留推送触发器（可选）
+  # 保留推送触发器
   push:
     branches:
       - main
+  
+  # 建议添加：允许你在网页端手动点击按钮触发，方便测试
+  workflow_dispatch:
 
 jobs:
   build-and-run:
-    runs-on: ubuntu-latest  # 使用最新的 Ubuntu 环境
+    runs-on: ubuntu-latest
+    
+    # 【关键修改 1】配置权限，允许 Action 修改仓库内容（用于自动提交保活）
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout code  # 检出代码
-        uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@v4 # 建议使用稳定版本 v4
 
-      - name: Set up Go  # 设置 Go 环境
-        uses: actions/setup-go@master
+      - name: Set up Go
+        uses: actions/setup-go@v5 # 建议使用稳定版本 v5
         with:
-          go-version: '1.20'  # 根据你的 Go 版本需求调整
+          go-version: '1.20'
 
-      - name: Install dependencies  # 安装 Go 依赖
+      - name: Install dependencies
         run: go mod download
 
-      - name: Build Go Program  # 编译 Go 程序，输出到当前运行目录下的main文件
+      - name: Build Go Program
         run: go build -o main ./cmd/cmd.go
 
-      - name: Run Go Program  # 运行 Go 程序
-        run: ./main --qw_auth="${{ secrets.QW_AUTH}}" --r18=${{ secrets.R18 || 0}} --tags=${{ secrets.TAGS || '' }} --pic_size="${{ secrets.PIC_SIZE || ''}}" --proxy="${{ secrets.PROXY || ''}}"
+      - name: Run Go Program
+        # 优化了长命令的写法，使用 \ 换行更不易出错
+        run: |
+          ./main \
+          --qw_auth="${{ secrets.QW_AUTH}}" \
+          --r18=${{ secrets.R18 || 0}} \
+          --tags=${{ secrets.TAGS || '' }} \
+          --pic_size="${{ secrets.PIC_SIZE || ''}}" \
+          --proxy="${{ secrets.PROXY || ''}}" \
           --direct_proxy=${{ secrets.DIRECT_PROXY || ''}}
         env:
-          # 如果需要设置环境变量，可以在这里定义
           LOG_LEVEL: debug
 
-      - name: Upload logs  # 上传日志文件（如果有日志文件生成）
-        uses: actions/upload-artifact@master
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        # 添加 if: always() 确保即使 Go 程序报错退出，也能上传日志供你排查
+        if: always() 
         with:
           name: run-logs
-          path: logs/  # 假设日志文件存储在 logs 文件夹中
+          path: logs/
+
+      # 【关键修改 2】添加保活步骤
+      # 默认逻辑：如果过去 50 天没有代码提交，它会自动提交一个空 commit
+      - name: Keepalive Workflow
+        uses: gautamkrishnar/keepalive-workflow@v2
